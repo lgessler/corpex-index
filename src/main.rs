@@ -47,12 +47,12 @@ fn accept_search() -> Result<(), Error> {
 
 
 fn main() {
-    //build_map().unwrap();
+    build_map().unwrap();
     //search("यहा").unwrap();
     //let s = ".*यहा.*";
     //let s = ".*";
     //search(&s).unwrap();
-    accept_search().unwrap();
+    //accept_search().unwrap();
 
 }
 
