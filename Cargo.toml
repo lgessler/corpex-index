@@ -1,0 +1,10 @@
+[package]
+name = "fast"
+version = "0.1.0"
+authors = ["Luke Gessler <ldg3fa@virginia.edu>"]
+
+[dependencies]
+fst = "0.1"
+csv = "0.14"
+nickel = "*"
+rustc-serialize = "*"
