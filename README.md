@@ -11,7 +11,16 @@ Install rust:
 
     curl -sSf https://static.rust-lang.org/rustup.sh | sh
 
-Clone this repo:
+Clone this repo and build:
+    
+    git clone git@github.com:lgessler/corpex-index.git
+    cd corpex-index/src
+    cargo build
+    cargo run
+
+To test, run the Python script:
+
+    python3 debug.py
 
 # Known issues
 
