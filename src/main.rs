@@ -83,14 +83,16 @@ fn build_map() -> Result<(), Error> {
     let rdr = csv::Reader::from_file("./hmcsample.txt").unwrap();
     let mut rdr = rdr.delimiter(b'\t');
 
-    let wtr = io::BufWriter::new(try!(File::create("map.fst")));
+    let wtr = io::BufWriter::new(File::create("map.fst").unwrap());
     let mut build = MapBuilder::new(wtr).unwrap();
 
     let mut vec = Vec::new();
     let mut i = 0;
+    let total: f64 = 44486496.0;
     for record in &mut rdr.decode() {
         let (_, _, s3): (String, String, Option<String>) = record.unwrap();
         i += 1;
+        print!("{}          \r", (i as f64)/total * 100.0);
         match s3 {
             Some(s3) => vec.push((s3, i)),
             _ => continue,
