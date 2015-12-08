@@ -12,7 +12,6 @@ use std::io::Error;
 #[macro_use] extern crate nickel;
 extern crate rustc_serialize;
 use nickel::{Nickel, HttpRouter, JsonBody, MediaType};
-use rustc_serialize::json;
 
 // For command-line arguments
 use std::env;
@@ -26,7 +25,7 @@ fn main() {
     for argument in env::args() {
         &mut argv.push(argument);
     }
-    assert!(argv.len() < 3, "Run with \"build <src file> <dst file>\" or \"run <map file>[ -p <port>]\"!");
+    assert!(argv.len() > 2, "Run with \"build <src file> <dst file>\" or \"run <map file>[ -p <port>]\"!");
 
     // Build map if in build mode, otherwise run with a pre-built map
     if argv[1] == "build".to_string() {
