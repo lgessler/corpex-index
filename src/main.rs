@@ -1,19 +1,48 @@
+// The FSM-based data structure we're using
 extern crate fst;
-extern crate csv;
-#[macro_use] extern crate nickel;
-extern crate rustc_serialize;
+use fst::{IntoStreamer, Streamer, Map, MapBuilder, Regex};
 
+// For reading CSV's and doing other file IO
+extern crate csv;
 use std::fs::File;
 use std::io;
 use std::io::Error;
 
-use fst::{IntoStreamer, Streamer, Map, MapBuilder, Regex};
+// For the web service
+#[macro_use] extern crate nickel;
+extern crate rustc_serialize;
 use nickel::{Nickel, HttpRouter, JsonBody, MediaType};
 use rustc_serialize::json;
 
-fn accept_search() -> Result<(), Error> {
+// For command-line arguments
+use std::env;
+
+
+/* * * * * * * * * 
+ * Main function *
+ * * * * * * * * */
+fn main() {
+    // Pull out command-line arguments
+    let mut test = vec!();
+    for argument in env::args() {
+        &mut test.push(argument);
+    }
+    assert!(test.len() == 3, "Run with \"build <src file>\" or \"run <map file>\"!");
+
+    // Build map if in build mode, otherwise run with a pre-built map
+    if test[1] == "build".to_string() {
+        build_map(&test[2]).unwrap();
+    } else if test[1] == "run".to_string() {
+        accept_search(&test[2]).unwrap();    
+    } else {
+        println!("Unknown command {}. Use \"build\" or \"run\".", &test[1]);
+        panic!("Unknown command!");
+    }
+}
+
+fn accept_search(filename: &String) -> Result<(), Error> {
     // now search over the map
-    let map = Map::from_path("map.fst").unwrap();
+    let map = Map::from_path(filename).unwrap();
     
     let mut server = Nickel::new();
     server.post("/", middleware! { |req, mut res| 
@@ -46,15 +75,7 @@ fn accept_search() -> Result<(), Error> {
 }
 
 
-fn main() {
-    build_map().unwrap();
-    //search("यहा").unwrap();
-    //let s = ".*यहा.*";
-    //let s = ".*";
-    //search(&s).unwrap();
-    //accept_search().unwrap();
 
-}
 
 #[derive(RustcDecodable, RustcEncodable)]
 struct RegexString {
@@ -79,8 +100,8 @@ fn search(regex: &str) -> Result<(), Error> {
     Ok(())
 }
 
-fn build_map() -> Result<(), Error> {
-    let rdr = csv::Reader::from_file("./hmcsample.txt").unwrap();
+fn build_map(filename: &str) -> Result<(), Error> {
+    let rdr = csv::Reader::from_file(filename).unwrap();
     let mut rdr = rdr.delimiter(b'\t');
 
     let wtr = io::BufWriter::new(File::create("map.fst").unwrap());
