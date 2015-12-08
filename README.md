@@ -15,8 +15,8 @@ Clone this repo and build:
     
     git clone git@github.com:lgessler/corpex-index.git
     cd corpex-index/src
-    cargo build
-    cargo run
+    cargo build <HindMonoCorp05.plaintext file path> ./map.fst
+    cargo run ./map.fst
 
 To test, run the Python script:
 
@@ -25,5 +25,4 @@ To test, run the Python script:
 # Known issues
 
 * Duplicate keys not allowed
-* #Keys may overflow range of vals (unique u64)
 
