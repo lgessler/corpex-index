@@ -12,7 +12,6 @@ use std::io::Error;
 #[macro_use] extern crate nickel;
 extern crate rustc_serialize;
 use nickel::{Nickel, HttpRouter, JsonBody, MediaType};
-use rustc_serialize::json;
 
 // For command-line arguments
 use std::env;

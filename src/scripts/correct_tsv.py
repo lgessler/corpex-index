@@ -21,5 +21,3 @@ if __name__ == '__main__':
         print("Usage: \n\t python3 correct_tsv.py <src> <dst>")
         sys.exit(1)
     write_corrected_file(sys.argv[1], sys.argv[2])
-
-        
