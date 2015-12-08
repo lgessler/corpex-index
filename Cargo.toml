@@ -1,5 +1,5 @@
 [package]
-name = "corpex-index"
+name = "fast"
 version = "0.1.0"
 authors = ["Luke Gessler <ldg3fa@virginia.edu>"]
 
