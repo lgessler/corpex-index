@@ -16,8 +16,9 @@ Clone this repo and build:
     git clone git@github.com:lgessler/corpex-index.git
     cd corpex-index/src
     cargo build --release
-    cargo run build <HindMonoCorp05.plaintext file path> ./map.fst
-    cargo run run ./map.fst
+    ../target/release/corpex-index build <HindMonoCorp05.plaintext file path> ./map.fst
+    ../target/release/corpex-index run ./map.fst
+    cargo run 
 
 To test, run the Python script:
 
