@@ -80,7 +80,7 @@ fn accept_search(filename: &String, port: &String) -> Result<(), Error> {
         // Begin building the response JSON, as a string
         let mut payload = String::from("{\n");
         for (k, v) in kvs {
-            let line = format!("'{}': '{}'", String::from_utf8_lossy(&k), v);
+            let line = format!("  '{}': '{}'\n", String::from_utf8_lossy(&k), v);
             payload.push_str(&line);
         }
         payload.push_str("}");
