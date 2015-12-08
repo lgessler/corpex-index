@@ -20,7 +20,7 @@ Clone this repo and build:
 
 To test, run the Python script:
 
-    python3 debug.py
+    python3 scripts/debug.py
 
 # Known issues
 
