@@ -24,7 +24,3 @@ To test, run the Python script:
 
     python3 scripts/debug.py
 
-# Known issues
-
-* Duplicate keys not allowed
-
