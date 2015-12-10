@@ -6,19 +6,6 @@ parts.
 import sys
 from math import ceil
 
-def sort_file(filename):
-    """
-    Read in a list (separated by newline chars), sort in place, and return.
-    """
-
-    lines = []
-    with open(filename, 'r') as f:
-        for line in f:
-            lines.append(line)
-
-    lines.sort()
-    return lines
-
 if __name__ == '__main__':
     try:
         filename = str(sys.argv[1])
@@ -38,12 +25,9 @@ if __name__ == '__main__':
         """)
         sys.exit(1)
 
-    try:
-        sorted_lines = sort_file(filename)
-    except MemoryError:
-        print("Ran out of memory while trying to sort the file.")
-        sys.exit(1)
-    
+    with open(filename, 'r') as f:
+        sorted_lines = f.readlines()
+
     num_lines = len(sorted_lines)
     shard_size = ceil(num_lines / num_shards)
     print(shard_size)
