@@ -35,8 +35,8 @@ fn main() {
         build_set(&argv[2], &argv[3]).unwrap();
     } 
     else if argv[1] == "run".to_string() {
-        if argv[2] == "-p".to_string() {
-            accept_search(&argv[2], &argv[3]).unwrap();
+        if argv[3] == "-p".to_string() {
+            accept_search(&argv[2], &argv[4]).unwrap();
         } else {
             accept_search(&argv[2], &"6767".to_string()).unwrap();    
         }
