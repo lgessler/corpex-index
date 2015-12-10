@@ -1,4 +1,6 @@
 target
 .*swp
 hmcsample.txt
+hindmonocorp*
 set.fst
+sharded*
