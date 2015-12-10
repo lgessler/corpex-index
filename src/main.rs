@@ -16,6 +16,9 @@ use nickel::{Nickel, HttpRouter, JsonBody, MediaType};
 // For command-line arguments
 use std::env;
 
+// For timing queries
+extern crate time;
+
 /* * * * * * * * * 
  * Main function *
  * * * * * * * * */
@@ -60,10 +63,11 @@ fn accept_search(filename: &String, port: &String) -> Result<(), Error> {
     let mut server = Nickel::new();
     // Route post requests to / this handler function
     server.post("/", middleware! { |req, mut res| 
-        println!("Received request for {}", &rex.val);
+        let start_time = time::precise_time_ns();
 
         // Accept the POST data and load into struct
         let rex = req.json_as::<RegexString>().unwrap();
+        println!("Received request for {}", &rex.val);
 
         // Add trailing and leading wildcards because corpex assumes these are present
         let search_expression = format!("{}{}{}", ".*", &rex.val, ".*");
@@ -109,6 +113,9 @@ fn accept_search(filename: &String, port: &String) -> Result<(), Error> {
         // Tell them the response is a JSON, and send it back. (Rust returns
         // implicitly, like Ruby or CoffeeScript.)
         res.set(MediaType::Json);
+
+        println!("Responded to {} in {} ms", &rex.val, 
+                 (time::precise_time_ns() - start_time)/1000000);
         payload
     });
     
