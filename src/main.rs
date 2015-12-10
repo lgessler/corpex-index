@@ -105,10 +105,11 @@ fn accept_search(filename: &String, port: &String) -> Result<(), Error> {
                 let line = format!("\"{}\",", String::from_utf8_lossy(&keys[i]));
                 payload.push_str(&line);
             } else {
-                let line = format!("\"{}\"]}}", String::from_utf8_lossy(&keys[i]));
+                let line = format!("\"{}\"", String::from_utf8_lossy(&keys[i]));
                 payload.push_str(&line);
             }
         }
+        payload.push_str("]}");
 
         // Tell them the response is a JSON, and send it back. (Rust returns
         // implicitly, like Ruby or CoffeeScript.)
