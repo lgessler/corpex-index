@@ -1,6 +1,6 @@
-// The FSM-based data structure we're using
+// The FST-based data structure we're using
 extern crate fst;
-use fst::{IntoStreamer, Streamer, Map, MapBuilder, Regex};
+use fst::{IntoStreamer, Streamer, Set, SetBuilder, Regex};
 
 // For reading CSV's and doing other file IO
 extern crate csv;
@@ -25,11 +25,11 @@ fn main() {
     for argument in env::args() {
         &mut argv.push(argument);
     }
-    assert!(argv.len() > 2, "Run with \"build <src file> <dst file>\" or \"run <map file>[ -p <port>]\"!");
+    assert!(argv.len() > 2, "Run with \"build <src file> <dst file>\" or \"run <set file>[ -p <port>]\"!");
 
-    // Build map if in build mode, otherwise run with a pre-built map
+    // Build set if in build mode, otherwise run with a pre-built set
     if argv[1] == "build".to_string() {
-        build_map(&argv[2], &argv[3]).unwrap();
+        build_set(&argv[2], &argv[3]).unwrap();
     } 
     else if argv[1] == "run".to_string() {
         if argv[2] == "-p".to_string() {
@@ -54,36 +54,57 @@ struct RegexString {
 // struct-compatible JSON inside. Responds with a list of matched strings 
 // and their correspondng values.
 fn accept_search(filename: &String, port: &String) -> Result<(), Error> {
-    // Load the map that was built from build_map() into memory
-    let map = Map::from_path(filename).unwrap();
+    // Load the set that was built from build_set() into memory
+    let set = Set::from_path(filename).unwrap();
     
     let mut server = Nickel::new();
     // Route post requests to / this handler function
     server.post("/", middleware! { |req, mut res| 
+        println!("Received request for {}", &rex.val);
+
         // Accept the POST data and load into struct
         let rex = req.json_as::<RegexString>().unwrap();
 
-        println!("Received request for {}", &rex.val);
         // Add trailing and leading wildcards because corpex assumes these are present
         let search_expression = format!("{}{}{}", ".*", &rex.val, ".*");
         
         // Build regex object from our formatted regex string
         let re = Regex::new(&search_expression).unwrap();
 
-        // Search the map with the regex object and stream the results into a vec
-        let mut stream = map.search(&re).into_stream();
-        let mut kvs = vec![];
-        while let Some((k, v)) = stream.next() {
-            kvs.push((k.to_vec(), v));
+        // Search the set with the regex object and stream the results into a vec
+        let mut stream = set.search(&re).into_stream();
+        let mut keys = vec![];
+        while let Some(k) = stream.next() {
+            keys.push(k.to_vec());
         }
 
         // Begin building the response JSON, as a string
-        let mut payload = String::from("{\n");
-        for (k, v) in kvs {
-            let line = format!("  '{}': '{}'\n", String::from_utf8_lossy(&k), v);
-            payload.push_str(&line);
+        // Commented version is for pretty printing--but since the computer 
+        // doesn't care, we exclude newlines and spaces.
+        /*
+        let mut payload = String::from("{\n  'results': [\n");
+        let len = keys.len();
+        for i in 0..len {
+            if i < len - 1 {
+                let line = format!("    '{}',\n", String::from_utf8_lossy(&keys[i]));
+                payload.push_str(&line);
+            } else {
+                let line = format!("    '{}'\n  ]\n}}", String::from_utf8_lossy(&keys[i]));
+                payload.push_str(&line);
+            }
         }
-        payload.push_str("}");
+        */
+        let mut payload = String::from("{\"results\":[");
+        let len = keys.len();
+        for i in 0..len {
+            if i < len - 1 {
+                let line = format!("\"{}\",", String::from_utf8_lossy(&keys[i]));
+                payload.push_str(&line);
+            } else {
+                let line = format!("\"{}\"]}}", String::from_utf8_lossy(&keys[i]));
+                payload.push_str(&line);
+            }
+        }
 
         // Tell them the response is a JSON, and send it back. (Rust returns
         // implicitly, like Ruby or CoffeeScript.)
@@ -97,44 +118,42 @@ fn accept_search(filename: &String, port: &String) -> Result<(), Error> {
     Ok(())
 }
 
-// Given a CSV at filename, build an fst::Map and write it to mapname
-fn build_map(filename: &str, mapname: &str) -> Result<(), Error> {
+// Given a csv_filename, build an fst::Set and write it to set_filename 
+fn build_set(csv_filename: &str, set_filename: &str) -> Result<(), Error> {
     // Initialize CSV reader and set delimiter to tab.
-    let rdr = csv::Reader::from_file(filename).unwrap();
+    let rdr = csv::Reader::from_file(csv_filename).unwrap();
     let mut rdr = rdr.delimiter(b'\t');
 
-    // Open a buffered file writer at mapname. Give the writer to an 
-    // fst::MapBuilder object, which lets you stream the map onto the disk
+    // Open a buffered file writer at set_filename. Give the writer to an 
+    // fst::SetBuilder object, which lets you stream the set onto the disk
     // instead of keeping it all in memory.
-    let wtr = io::BufWriter::new(File::create(mapname).unwrap());
-    let mut build = MapBuilder::new(wtr).unwrap();
+    let wtr = io::BufWriter::new(File::create(set_filename).unwrap());
+    let mut build = SetBuilder::new(wtr).unwrap();
 
     // Load all the lines of the CSV into memory. Only keep the third one,
     // which is the actual text in HMC's case. (The first two are metadata.)
     // Put them into a vec.
     let mut vec = Vec::new();
-    let mut i = 0;
     for record in &mut rdr.decode() {
         let (_, _, s3): (String, String, Option<String>) = record.unwrap();
-        i += 1;
         match s3 {
-            Some(s3) => vec.push((s3, i)),
+            Some(s3) => vec.push(s3),
             _ => continue,
         }
     }
     
-    // Sort the vec. This is necessary for fst's MapBuilder to work properly.
+    // Sort the vec. This is necessary for fst's SetBuilder to work properly.
     vec.sort();
 
-    // Finally, use the MapBuilder object to construct the map one line at a time.
+    // Finally, use the SetBuilder object to construct the set one line at a time.
     // Keep track of lines and discard any duplicates.
     let mut already_inserted = Vec::new();
-    for tuple in vec {
-        if already_inserted.contains(&tuple.0) {
+    for line in vec {
+        if already_inserted.contains(&line) {
             continue;
         }
-        build.insert(&tuple.0, tuple.1).unwrap();
-        already_inserted.push(tuple.0);
+        build.insert(&line).unwrap();
+        already_inserted.push(line);
     }
     // Block until construction is finished
     build.finish().unwrap();

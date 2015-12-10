@@ -6,7 +6,9 @@ payload = {'val': 'गरम'}
 headers = {'content-type': 'application/json'}
 
 r = requests.post(url=url, data=json.dumps(payload), headers=headers)
-print(r.content.decode('utf-8', 'strict'))
-print(r.json)
-print(type(r.json))
-#print(dir(r))
+
+s = r.content.decode('utf-8', 'strict')
+obj = json.loads(s)
+print(obj, type(obj))
+print(obj['results'])
+
