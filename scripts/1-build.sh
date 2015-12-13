@@ -1,3 +1,4 @@
+#!/bin/sh
 screen -d -m target/release/corpex-index build sharded/hindmonocorp05.plaintext.sorted.shard0 sharded-sets/set0.fst
 screen -d -m target/release/corpex-index build sharded/hindmonocorp05.plaintext.sorted.shard1 sharded-sets/set1.fst
 screen -d -m target/release/corpex-index build sharded/hindmonocorp05.plaintext.sorted.shard2 sharded-sets/set2.fst

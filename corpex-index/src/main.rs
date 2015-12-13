@@ -117,10 +117,11 @@ fn accept_search(filename: &String, port: &String) -> Result<(), Error> {
 
         println!("Responded to {} in {} ms", &rex.val, 
                  (time::precise_time_ns() - start_time)/1000000);
+        println!("{}", payload);
         payload
     });
     
-    let ip_and_string = "0.0.0.0:".to_string() + port;
+    let ip_and_string = "127.0.0.1:".to_string() + port;
     // only a &str makes this method happy, so slice the String
     server.listen(&ip_and_string[..]);
     Ok(())
