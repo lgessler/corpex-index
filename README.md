@@ -5,7 +5,7 @@ It provides a JSON API endpoint wrapped around the [rust crate
 `fst`](http://blog.burntsushi.net/transducers/), a fast
 regular expression matching engine (among other things).
 
-For my `corpex`'s use case it turned out to be utterly inappropriate, and non-performant,
+For my `corpex`'s use case it turned out to be utterly inappropriate and non-performant,
 but I'm leaving it online just in case someone else can save some work using it.
 
 # Setup
